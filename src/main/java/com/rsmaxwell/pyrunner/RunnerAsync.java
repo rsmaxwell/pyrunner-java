@@ -1,8 +1,11 @@
 package com.rsmaxwell.pyrunner;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +30,7 @@ public class RunnerAsync {
     private Process process;
     private StreamReader outputReader;
     private StreamReader errorReader;
+    private PrintWriter printWriter;
 
     public static String findExecutableOnPath(String name) {
         for (String dirname : System.getenv("PATH").split(File.pathSeparator)) {
@@ -66,25 +70,22 @@ public class RunnerAsync {
         command.add(programPath);
         command.add("server.py");
         pb.command(command);
+        pb.redirectInput();
 
         process = pb.start();
 
+        // *************************************************************************
+        // * Capture the standard streams
+        // *************************************************************************
         outputReader = new StreamReader(process.getInputStream(), Operation.stdout, observers);
         outputReader.start();
 
         errorReader = new StreamReader(process.getErrorStream(), Operation.stderr, observers);
         errorReader.start();
-    }
 
-    private void WriteLn(String line) throws IOException {
-        byte[] bytes = line.getBytes("UTF-8");
-        OutputStream stream = process.getOutputStream();
-
-        for (byte b : bytes)
-            stream.write(b);
-
-        stream.write(CarriageReturn);
-        stream.write(LineFeed);
+        OutputStream stdin = process.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+        printWriter = new PrintWriter(writer);
     }
 
     public List<String> read() {
@@ -103,15 +104,15 @@ public class RunnerAsync {
 
         ResponseItem responseItem = responseMap.get(token);
 
-        log("MyRunnerAsync.waitForResponse: waiting for: " + token);
+        log("RunnerAsync.waitForResponse: waiting for: " + token);
         responseItem.semaphore.acquire();
 
-        log("MyRunnerAsync.waitForResponse: continuing: " + token);
+        log("RunnerAsync.waitForResponse: continuing: " + token);
         responseMap.remove(token);
         String line = responseItem.line;
         // responseItem.Destroy();
 
-        Object jData = JSONObject.stringToValue(line);
+        Object jData = new JSONObject(line);
 
         if (!(jData instanceof JSONObject))
             throw new RunnerException("Error: unexpected response. type = " + jData.getClass().getSimpleName());
@@ -152,21 +153,21 @@ public class RunnerAsync {
         try {
             log("RunnerAsync.postResponseItem: " + line);
 
-            Object jData = JSONObject.stringToValue(line);
+            Object jData = new JSONObject(line);
 
             if (jData instanceof JSONObject) {
                 JSONObject jObject = (JSONObject) jData;
 
                 String token;
                 if (!jObject.has("token")) {
-                    log("MyRunnerAsync.postResponseItem: The \"token\" field is missing");
+                    log("RunnerAsync.postResponseItem: The \"token\" field is missing");
                     return;
                 } else {
                     jData = jObject.get("token");
                     if (jData instanceof String) {
                         token = (String) jData;
                     } else {
-                        log("MyRunnerAsync.postResponseItem: Error: unexpected token type. jType = " + jData.getClass().getSimpleName());
+                        log("RunnerAsync.postResponseItem: Error: unexpected token type. jType = " + jData.getClass().getSimpleName());
                         return;
                     }
                 }
@@ -175,10 +176,10 @@ public class RunnerAsync {
                 responseItem.line = line;
                 responseItem.semaphore.release();
             } else {
-                log("MyRunnerAsync.postResponseItem: Error: unexpected response. jType = " + jData.getClass().getSimpleName());
+                log("RunnerAsync.postResponseItem: Error: unexpected response. jType = " + jData.getClass().getSimpleName());
             }
         } catch (Exception e) {
-            log("MyRunnerAsync.postResponseItem: Error: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            log("RunnerAsync.postResponseItem: Error: " + e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }
 
@@ -232,17 +233,18 @@ public class RunnerAsync {
         String python = "data[\"" + field + "\"] = []";
 
         JSONObject jObject = new JSONObject();
-        jObject.append("command", "run");
+        jObject.put("command", "run");
 
         JSONArray jArray = new JSONArray();
         jArray.put(python);
-        jObject.append("arguments", jArray);
+        jObject.put("arguments", jArray);
 
         String token = makeToken();
-        jObject.append("token", token);
+        jObject.put("token", token);
 
         String command = jObject.toString();
-        WriteLn(command);
+        printWriter.println(command);
+        printWriter.flush();
         responseMap.put(token, new ResponseItem());
         return token;
     }
@@ -260,17 +262,18 @@ public class RunnerAsync {
         python = python + ") )";
 
         JSONObject jObject = new JSONObject();
-        jObject.append("command", "run");
+        jObject.put("command", "run");
 
         JSONArray jArray = new JSONArray();
         jArray.put(python);
-        jObject.append("arguments", jArray);
+        jObject.put("arguments", jArray);
 
         String token = makeToken();
-        jObject.append("token", token);
+        jObject.put("token", token);
 
         String command = jObject.toString();
-        WriteLn(command);
+        printWriter.println(command);
+        printWriter.flush();
         responseMap.put(token, new ResponseItem());
         return token;
     }
@@ -282,17 +285,18 @@ public class RunnerAsync {
         String python = pythonFunction + "()";
 
         JSONObject jObject = new JSONObject();
-        jObject.append("command", "run");
+        jObject.put("command", "run");
 
         JSONArray jArray = new JSONArray();
         jArray.put(python);
-        jObject.append("arguments", jArray);
+        jObject.put("arguments", jArray);
 
         String token = makeToken();
-        jObject.append("token", token);
+        jObject.put("token", token);
 
         String command = jObject.toString();
-        WriteLn(command);
+        printWriter.println(command);
+        printWriter.flush();
         responseMap.put(token, new ResponseItem());
         return token;
     }
@@ -300,17 +304,18 @@ public class RunnerAsync {
     public String getResult() throws IOException, InterruptedException {
 
         JSONObject jObject = new JSONObject();
-        jObject.append("command", "get");
+        jObject.put("command", "get");
 
         JSONArray jArray = new JSONArray();
         jArray.put("result");
-        jObject.append("arguments", jArray);
+        jObject.put("arguments", jArray);
 
         String token = makeToken();
-        jObject.append("token", token);
+        jObject.put("token", token);
 
         String command = jObject.toString();
-        WriteLn(command);
+        printWriter.println(command);
+        printWriter.flush();
         responseMap.put(token, new ResponseItem());
         return token;
     }
@@ -318,13 +323,14 @@ public class RunnerAsync {
     public String Close() throws IOException, InterruptedException {
 
         JSONObject jObject = new JSONObject();
-        jObject.append("command", "quit");
+        jObject.put("command", "quit");
 
         String token = makeToken();
-        jObject.append("token", token);
+        jObject.put("token", token);
 
         String command = jObject.toString();
-        WriteLn(command);
+        printWriter.println(command);
+        printWriter.flush();
         responseMap.put(token, new ResponseItem());
         return token;
     }
@@ -366,7 +372,7 @@ public class RunnerAsync {
 
         Double total = (Double) jData;
 
-        log("MyRunnerAsync.handleResponseGetResult: exit");
+        log("RunnerAsync.handleResponseGetResult: exit");
 
         return new Result(count, total);
     }

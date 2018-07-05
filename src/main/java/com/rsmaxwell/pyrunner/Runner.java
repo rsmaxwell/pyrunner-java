@@ -76,35 +76,35 @@ public class Runner implements AutoCloseable, RunnerObserver {
     // *****************************************************************************
     public void createArray(String field) throws RunnerException, IOException, InterruptedException {
         String token = asyncClient.createArray(field);
-        log("MyRunner.CreateArray: token: " + token);
+        log("Runner.CreateArray: token: " + token);
 
         asyncClient.waitForResponse(token);
-        log("MyRunner.CreateArray: exit");
+        log("Runner.CreateArray: exit");
     }
 
     public void extendArray(String field, List<Double> list) throws RunnerException, IOException, InterruptedException {
         String token = asyncClient.extendArray(field, list);
-        log("MyRunner.ExtendArray: token: " + token);
+        log("Runner.ExtendArray: token: " + token);
 
         asyncClient.waitForResponse(token);
-        log("MyRunner.ExtendArray: exit");
+        log("Runner.ExtendArray: exit");
     }
 
     public void runPythonFunction(String pythonFunction) throws RunnerException, IOException, InterruptedException {
         String token = asyncClient.runPythonFunction(pythonFunction);
-        log("MyRunner.RunPythonFunction: token: " + token);
+        log("Runner.RunPythonFunction: token: " + token);
 
         asyncClient.waitForResponse(token);
-        log("MyRunner.RunPythonFunction: exit");
+        log("Runner.RunPythonFunction: exit");
     }
 
     public Result getResult() throws RunnerException, IOException, InterruptedException {
         String token = asyncClient.getResult();
-        log("MyRunner.GetResult: token: " + token);
+        log("Runner.GetResult: token: " + token);
 
         JSONObject jObject = asyncClient.waitForResponse(token);
         Result result = asyncClient.handleResponseGetResult(jObject);
-        log("MyRunner.GetResult: exit");
+        log("Runner.GetResult: exit");
         return result;
     }
 }

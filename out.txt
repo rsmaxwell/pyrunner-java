@@ -1,0 +1,26 @@
+server.py: 2018-07-05 16:26:01.536733
+input =  {"arguments":["data[\"array\"] = []"],"command":"run","token":"472984bc-1474-4ad4-b8b5-c8070a16301b"}
+token =  472984bc-1474-4ad4-b8b5-c8070a16301b
+command_string =  run
+command =  run()
+eval (run())
+input =  {"arguments":["data[\"array\"].extend( (0.7042565959326388, 0.4572785612046374, 0.9530997567046444, 0.23256026314445777, 0.18823111139922577, 0.11417838302240002, 0.010586255770610231, 0.6605846228055...
+token =  325e448f-e0c3-47c9-be02-35d4273b0ff9
+command_string =  run
+command =  run()
+eval (run())
+input =  {"arguments":["data[\"array\"].extend( (0.18051518298388525, 0.6528479153986152, 0.46993722760299683, 0.11758137329543872, 0.5746675842730912, 0.8633421610993993, 0.4944509390693007, 0.128400227253851...
+token =  ee887afe-4f1c-4c38-a85a-aa0b29e5ebd4
+command_string =  run
+command =  run()
+eval (run())
+input =  {"arguments":["foobar()"],"command":"run","token":"860b2d3b-99da-4430-83cd-668ac5557d29"}
+token =  860b2d3b-99da-4430-83cd-668ac5557d29
+command_string =  run
+command =  run()
+eval (run())
+input =  {"arguments":["result"],"command":"get","token":"2cc5ece2-c25a-428b-a91c-e6ce562787b5"}
+token =  2cc5ece2-c25a-428b-a91c-e6ce562787b5
+command_string =  get
+command =  get()
+eval (get())

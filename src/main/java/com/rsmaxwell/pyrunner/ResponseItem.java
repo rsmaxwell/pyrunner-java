@@ -11,5 +11,4 @@ public class ResponseItem {
         semaphore = new Semaphore(1);
         semaphore.acquire();
     }
-
 }
