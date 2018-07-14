@@ -39,7 +39,7 @@ public class Testcase implements RunnerLogger {
 
         try (Runner client = new Runner()) {
 
-            client.attachLogger(this);
+            // client.attachLogger(this);
 
             System.out.println("Create array");
             client.createArray("array");
