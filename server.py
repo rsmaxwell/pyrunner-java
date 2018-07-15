@@ -26,11 +26,12 @@ def errorResponse(message):
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
-
+    sys.stderr.flush()
 
 
 def foobar():
     print("FooBar")
+    sys.stderr.flush()
 
     total = 0.0
     for value in data['array']:
@@ -44,6 +45,7 @@ def foobar():
 
 def quit( *args ):
     print("Quit")
+    sys.stderr.flush()
     okResponse()
     sys.exit()
 
@@ -53,6 +55,7 @@ def quit( *args ):
 
 def run( *args ):
     print("Run")
+    sys.stderr.flush()
 
     arguments = []
     if 'arguments' in parsed_json:
@@ -70,6 +73,7 @@ def run( *args ):
     except Exception as e:
         errorResponse(str(e))
         print( sys.exc_info()[0] )
+        sys.stderr.flush()
 
 
 
@@ -77,6 +81,7 @@ def run( *args ):
 
 def get( *args ):
     print("Get")
+    sys.stderr.flush()
 
     arguments = json.loads('[]')
     if 'arguments' in parsed_json:
@@ -161,6 +166,7 @@ while True:
     json_string = get_input()
     debug = (json_string[:200] + '...') if len(json_string) > 200 else json_string
     print('input = ', debug)
+    sys.stdout.flush()
 
     try:
         parsed_json = json.loads(json_string)
@@ -170,32 +176,39 @@ while True:
         print('Failed to parse input as json')
         print('json_string: ', json_string)
         print( sys.exc_info()[0] )
+        sys.stdout.flush()
         continue
 
     if 'token' not in parsed_json:
         errorResponse("No 'token' field in input")
         print("No 'token' field in input")
         print(json.dumps(parsed_json, sort_keys=True, indent=4, separators=(',', ': ')))
+        sys.stdout.flush()
         continue
 
     token = parsed_json['token']
     print('token = ', token)
+    sys.stdout.flush()
 
     if 'command' not in parsed_json:
         errorResponse("No 'command' field in input")
         print("No 'command' field in input")
         print(json.dumps(parsed_json, sort_keys=True, indent=4, separators=(',', ': ')))
+        sys.stdout.flush()
         continue
 
     command_string = parsed_json['command']
     print('command_string = ', command_string)
+    sys.stdout.flush()
     command = commands.get(command_string)
     print('command = ', command)
+    sys.stdout.flush()
 
     if command is None:
         errorResponse("Unexpected command: " + command_string)
         print("Unexpected command: " + command_string)
         print(json.dumps(parsed_json, sort_keys=True, indent=4, separators=(',', ': ')))
+        sys.stdout.flush()
         continue
 
     try:
@@ -206,6 +219,7 @@ while True:
         print("Caught exception: " + str(e))
         print( sys.exc_info()[0] )
         print(json.dumps(parsed_json, sort_keys=True, indent=4, separators=(',', ': ')))
+        sys.stdout.flush()
         continue
 
 
