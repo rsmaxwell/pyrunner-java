@@ -61,6 +61,8 @@ public class RunnerAsync {
             throw new RunnerException("Could not find " + pythonProgramName + " or " + launcherProgramName + " on the PATH");
         }
 
+        System.out.println("programPath: " + programPath);
+
         // *************************************************************************
         // * Launch the python server
         // *************************************************************************
@@ -320,7 +322,7 @@ public class RunnerAsync {
         return token;
     }
 
-    public String Close() throws IOException, InterruptedException {
+    public String close() throws IOException, InterruptedException {
 
         JSONObject jObject = new JSONObject();
         jObject.put("command", "quit");

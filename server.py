@@ -31,7 +31,7 @@ def eprint(*args, **kwargs):
 
 def foobar():
     print("FooBar")
-    sys.stderr.flush()
+    sys.stdout.flush()
 
     total = 0.0
     for value in data['array']:
@@ -45,7 +45,7 @@ def foobar():
 
 def quit( *args ):
     print("Quit")
-    sys.stderr.flush()
+    sys.stdout.flush()
     okResponse()
     sys.exit()
 
@@ -55,7 +55,7 @@ def quit( *args ):
 
 def run( *args ):
     print("Run")
-    sys.stderr.flush()
+    sys.stdout.flush()
 
     arguments = []
     if 'arguments' in parsed_json:
@@ -73,7 +73,7 @@ def run( *args ):
     except Exception as e:
         errorResponse(str(e))
         print( sys.exc_info()[0] )
-        sys.stderr.flush()
+        sys.stdout.flush()
 
 
 
@@ -81,7 +81,7 @@ def run( *args ):
 
 def get( *args ):
     print("Get")
-    sys.stderr.flush()
+    sys.stdout.flush()
 
     arguments = json.loads('[]')
     if 'arguments' in parsed_json:

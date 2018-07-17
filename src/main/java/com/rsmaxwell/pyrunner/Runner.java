@@ -44,11 +44,6 @@ public class Runner implements AutoCloseable, RunnerObserver {
         log(lines);
     }
 
-    @Override
-    public void close() throws Exception {
-
-    }
-
     // *****************************************************************************
     // * Observer
     // *****************************************************************************
@@ -106,5 +101,14 @@ public class Runner implements AutoCloseable, RunnerObserver {
         Result result = asyncClient.handleResponseGetResult(jObject);
         log("Runner.GetResult: exit");
         return result;
+    }
+
+    @Override
+    public void close() throws Exception {
+        String token = asyncClient.close();
+        log("Runner.close: token: " + token);
+
+        asyncClient.waitForResponse(token);
+        log("Runner.close: exit");
     }
 }
