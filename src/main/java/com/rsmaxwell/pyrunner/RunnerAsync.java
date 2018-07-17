@@ -61,7 +61,7 @@ public class RunnerAsync {
             throw new RunnerException("Could not find " + pythonProgramName + " or " + launcherProgramName + " on the PATH");
         }
 
-        System.out.println("programPath: " + programPath);
+        log("programPath: " + programPath);
 
         // *************************************************************************
         // * Launch the python server
