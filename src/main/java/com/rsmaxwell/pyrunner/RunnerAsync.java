@@ -42,6 +42,35 @@ public class RunnerAsync {
         return null;
     }
 
+    public static String findPythonExecutable() throws RunnerException {
+        List<String> programs = new ArrayList<String>();
+
+        String os = System.getProperty("os.name");
+        if (os.startsWith("Windows")) {
+            programs.add("pythonw.exe");
+            programs.add("pyw.exe");
+        } else if (os.equals("Linux")) {
+            programs.add("python3");
+            programs.add("python");
+        } else {
+            throw new RunnerException("OS not supported: " + os);
+        }
+
+        String programPath = null;
+        for (String program : programs) {
+            programPath = findExecutableOnPath(program);
+            if (programPath != null) {
+                break;
+            }
+        }
+
+        if (programPath == null) {
+            throw new RunnerException("Could not find Python executable on the PATH");
+        }
+
+        return programPath;
+    }
+
     public RunnerAsync() throws Exception {
 
         observers = new ArrayList<RunnerObserver>();
@@ -51,16 +80,7 @@ public class RunnerAsync {
         // *************************************************************************
         // * Find the python program path
         // *************************************************************************
-        String programPath = findExecutableOnPath(pythonProgramName);
-
-        if (programPath == null) {
-            programPath = findExecutableOnPath(launcherProgramName);
-        }
-
-        if (programPath == null) {
-            throw new RunnerException("Could not find " + pythonProgramName + " or " + launcherProgramName + " on the PATH");
-        }
-
+        String programPath = findPythonExecutable();
         log("programPath: " + programPath);
 
         // *************************************************************************
