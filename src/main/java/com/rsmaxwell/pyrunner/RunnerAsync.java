@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.rsmaxwell.pyrunner.StreamReader.Operation;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
 
 public class RunnerAsync {
 
@@ -71,6 +75,54 @@ public class RunnerAsync {
         return programPath;
     }
 
+    private static Long getProcessId(Process process) throws RunnerException {
+        String os = System.getProperty("os.name");
+        if (os.startsWith("Windows")) {
+            return windowsProcessId(process);
+        } else if (os.equals("Linux")) {
+            return unixLikeProcessId(process);
+        } else {
+            throw new RunnerException("OS not supported: " + os);
+        }
+    }
+
+    private static Long unixLikeProcessId(Process process) {
+        Class<?> clazz = process.getClass();
+        try {
+            if (clazz.getName().equals("java.lang.UNIXProcess")) {
+                Field pidField = clazz.getDeclaredField("pid");
+                pidField.setAccessible(true);
+                Object value = pidField.get(process);
+                if (value instanceof Integer) {
+                    return ((Integer) value).longValue();
+                }
+            }
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException sx) {
+            sx.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Long windowsProcessId(Process process) {
+        if (process.getClass().getName().equals("java.lang.Win32Process") || process.getClass().getName().equals("java.lang.ProcessImpl")) {
+            /* determine the pid on windows platforms */
+            try {
+                Field f = process.getClass().getDeclaredField("handle");
+                f.setAccessible(true);
+                long handl = f.getLong(process);
+
+                Kernel32 kernel = Kernel32.INSTANCE;
+                WinNT.HANDLE handle = new WinNT.HANDLE();
+                handle.setPointer(Pointer.createConstant(handl));
+                int ret = kernel.GetProcessId(handle);
+                return (long) ret;
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     public RunnerAsync() throws Exception {
 
         observers = new ArrayList<RunnerObserver>();
@@ -95,6 +147,7 @@ public class RunnerAsync {
         pb.redirectInput();
 
         process = pb.start();
+        log("RunnerAsync: pid = " + getProcessId(process));
 
         // *************************************************************************
         // * Capture the standard streams
