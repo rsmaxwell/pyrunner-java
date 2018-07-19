@@ -180,7 +180,7 @@ while True:
     debug = (json_string[:200] + '...') if len(json_string) > 200 else json_string
     log('input = ', debug)
     print('input = ', debug)
-	sys.stdout.flush()
+        sys.stdout.flush()
 
     try:
         parsed_json = json.loads(json_string)
