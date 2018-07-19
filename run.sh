@@ -1,8 +1,7 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-x=target/classes
-x=${x}:/cygdrive/c/Users/Richard/.m2/repository/org/json/json/20180130/json-20180130.jar
-CLASSPATH=${x}
+x=target/pyrunner-0.0.1-SNAPSHOT.jar
+x=${x}:${HOME}/.m2/repository/org/json/json/20180130/json-20180130.jar
 
 set -x
-java -classpath ${CLASSPATH} com.rsmaxwell.pyrunner.Main
+java -classpath ${x} com.rsmaxwell.pyrunner.Main
