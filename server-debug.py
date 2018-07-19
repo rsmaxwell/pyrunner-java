@@ -180,7 +180,7 @@ while True:
     debug = (json_string[:200] + '...') if len(json_string) > 200 else json_string
     log('input = ', debug)
     print('input = ', debug)
-	sys.stdout.flush()
+    sys.stdout.flush()
 
     try:
         parsed_json = json.loads(json_string)
@@ -217,11 +217,11 @@ while True:
 
     command_string = parsed_json['command']
     print('command_string = ', command_string)
-	sys.stdout.flush()
+    sys.stdout.flush()
     log('command_string = ', command_string)
     command = commands.get(command_string)
     print('command = ', command)
-	sys.stdout.flush()
+    sys.stdout.flush()
     log('command = ', command)
 
     if command is None:
