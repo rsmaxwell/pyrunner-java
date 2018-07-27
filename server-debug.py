@@ -63,6 +63,7 @@ def quit( *args ):
 
 
 def run( *args ):
+    log("Run")
     print("Run")
     sys.stdout.flush()
 
@@ -77,8 +78,11 @@ def run( *args ):
     python = arguments[0]
 
     try:
+        log("Run: before exec python")
         exec( python )
+        log("Run: before ok")
         okResponse()
+        log("Run: after ok")
     except Exception as e:
         errorResponse(str(e))
         print( sys.exc_info()[0] )
